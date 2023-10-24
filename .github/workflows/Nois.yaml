@@ -8,7 +8,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          repository: 'owner/repository-name' # 替换为要检出的存储库的名称和所有者
+          repository: 'Dr-Nois/MyPrac' # 替换为要检出的存储库的名称和所有者
           ref: 'master' # 替换为要检出的分支、标签或 SHA
           token: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 提供的令牌变量
           persist-credentials: 'false' # 根据需要设置为 'true' 或 'false'
