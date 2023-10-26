@@ -35,7 +35,7 @@ jobs:
           format: 'table'
           output: 'trivy-report.txt'
           exit-code: "1"
-          severity: HIGH # need to be changed from critical to HIGH to test fail flow
+          severity: critical # need to be changed from critical to HIGH to test fail flow
 
 
       - name: Scan failed send notification to slack
@@ -123,7 +123,9 @@ jobs:
           SLACK_USERNAME: 'DipSA 57 CICD'
           SLACK_WEBHOOK: ${{ secrets.MY_SLACK_WEBHOOK_URL }}
 
+
 # this is my own practice to force to operate the fail flow
+# a bit too complex so i change to another way
       #- name: Force run failed workflow
       #  if: failure() && steps.scan.conclusion == 'failure' && github.event.inputs.force-failure-workflow == 'true'
       #  run: echo "This workflow failed, but is being forced to run."
