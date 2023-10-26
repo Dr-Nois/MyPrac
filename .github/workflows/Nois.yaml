@@ -90,7 +90,8 @@ jobs:
 
       - name: Sign image with a private key
         run: |
-          cosign sign --key env://${{ secrets.MY_SECRET_PRIK }} nois0/go-fortune:${{ github.sha }}
+          echo "$MY_SECRET_PRIK" > cosign_key
+          cosign sign --yes --key cosign_key nois0/go-fortune:${{ github.sha }}
         env:
           COSIGN_PRIVATE_KEY: ${{ secrets.MY_SECRET_PRIK }}
           COSIGN_PASSWORD: ${{ secrets.MY_SECRET_CP }}
