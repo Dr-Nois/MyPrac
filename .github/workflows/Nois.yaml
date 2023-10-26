@@ -1,8 +1,3 @@
-#1
-# I've set the file as private when building it.
-
-
-#2
 name: Check out
 on: [push, pull_request]
 jobs:
@@ -23,7 +18,6 @@ jobs:
           fetch-tags: 'true'
           submodules: 'recursive' # This can be 'true', 'false' or 'recursive'
 
-#3
 - name: Notify Slack
   uses: rtCamp/action-slack-notify@v2
   env:
@@ -39,15 +33,12 @@ jobs:
     color: 'danger'
     actions: 'attachment'
 
-
-#4
 - name: Run Trivy vulnerability scanner in fs mode
   uses: aquasecurity/trivy-action@master
   with:
     scan-type: 'fs'
     scan-ref: '.'
     trivy-config: trivy.yaml
-
 
 - name: Notify about vulnerabilities
   uses: rtCamp/action-slack-notify@v2
