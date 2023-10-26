@@ -28,7 +28,7 @@ jobs:
 
 
       - name: Scan failed send notification to slack
-        if: ${{ failure() && steps.scan.conclusion == 'failure' }} 
+        if: ${{ failure() }} 
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_ID }}
@@ -40,7 +40,7 @@ jobs:
 
 
       - name: slack send trivy scan reports
-        if:  ${{ failure() && steps.scan.conclusion == 'failure' }}
+        if:  ${{ failure() }}
         uses: MeilCli/slack-upload-file@v3
         with:
           slack_token: ${{ secrets.MY_SLACK_TOKEN }}
