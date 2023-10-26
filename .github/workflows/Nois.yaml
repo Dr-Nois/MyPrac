@@ -18,6 +18,7 @@ jobs:
           fetch-tags: 'true'
           submodules: 'recursive' # This can be 'true', 'false' or 'recursive'
 
+
 - name: Notify Slack
   uses: rtCamp/action-slack-notify@v2
   env:
@@ -33,12 +34,14 @@ jobs:
     color: 'danger'
     actions: 'attachment'
 
+
 - name: Run Trivy vulnerability scanner in fs mode
   uses: aquasecurity/trivy-action@master
   with:
     scan-type: 'fs'
     scan-ref: '.'
     trivy-config: trivy.yaml
+
 
 - name: Notify about vulnerabilities
   uses: rtCamp/action-slack-notify@v2
