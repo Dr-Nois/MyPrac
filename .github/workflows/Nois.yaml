@@ -5,11 +5,12 @@ on:
     branches:
       - 'master'
 
+
 jobs:
   trivy-scan-code:
     runs-on: ubuntu-latest
     name: Scan the code base for vulnerabilities
-    if: ${{ !startsWith(github.event.head_commit.message, '#NORUN') }}
+    if:  !startsWith(github.event.head_commit.message, '#NORUN')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,10 +25,10 @@ jobs:
           output: 'trivy-report.txt'
           exit-code: "1"
           severity: CRITICAL 
-          # severity: CRITICAL  
+
 
       - name: Scan failed send notification to slack
-        if: ${{ failure() && steps.scan.conclusion == 'failure' }}
+        if:  failure() && steps.scan.conclusion == 'failure' 
         uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_ID }}
@@ -37,15 +38,15 @@ jobs:
           SLACK_USERNAME: DipSA_CICD
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
+
       - name: slack send trivy scan reports
-        if: ${{ failure() && steps.scan.conclusion == 'failure' }}
+        if:  failure() && steps.scan.conclusion == 'failure' 
         uses: MeilCli/slack-upload-file@v3
         with:
           slack_token: ${{ secrets.MY_SLACK_TOKEN }}
           channel_id: ${{ secrets.MY_SLACK_CHANNEL_ID }}
           file_path: 'trivy-report.txt'
           initial_comment: 'Scan report by Guo Chenming'
-
 
 
   build_and_push:
@@ -56,6 +57,7 @@ jobs:
       contents: read
       packages: write
       id-token: write 
+
 
     steps:
       - name: Set up QEMU
@@ -70,6 +72,7 @@ jobs:
           username: ${{ secrets.MY_DOCKERHUB_USER }}
           password: ${{ secrets.MY_DOCKERHUB_TOKEN }}
 
+
       - name: Build and push
         uses: docker/build-push-action@v5
         id: build-and-push
@@ -77,10 +80,12 @@ jobs:
           push: true
           tags: nois0/go-fortune:${{ github.sha }} 
           
+
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.1.1
         with:
           cosign-release: 'v2.2.0' #v2.1.1
+
 
       - name: Sign image with a private key
         run: |
