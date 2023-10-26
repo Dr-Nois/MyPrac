@@ -4,13 +4,15 @@ on:
     branches:
       - 'master'
     
-    workflow_dispatch: # add the workflow_dispatch
-    inputs:
-      force-failure-workflow:
-        # to use the failure workflow
-        required: true
-        default: 'true'
-        # set to true to force the failure workflow
+
+    # this is my own practice to force to operate the fail flow
+    #workflow_dispatch: # add the workflow_dispatch
+    #inputs:
+    #  force-failure-workflow:
+    #    # to use the failure workflow
+    #    required: true
+    #    default: 'true'
+    #    # set to true to force the failure workflow
 
 
 jobs:
@@ -31,7 +33,7 @@ jobs:
           format: 'table'
           output: 'trivy-report.txt'
           exit-code: "1"
-          severity: HIGH 
+          severity: HIGH # need to change from HIGH to critical
 
 
       - name: Scan failed send notification to slack
@@ -119,7 +121,7 @@ jobs:
           SLACK_USERNAME: 'DipSA 57 CICD'
           SLACK_WEBHOOK: ${{ secrets.MY_SLACK_WEBHOOK_URL }}
 
-
-      - name: Force run failed workflow
-        if: failure() && steps.scan.conclusion == 'failure' && github.event.inputs.force-failure-workflow == 'true'
-        run: echo "This workflow failed, but is being forced to run."
+# this is my own practice to force to operate the fail flow
+      #- name: Force run failed workflow
+      #  if: failure() && steps.scan.conclusion == 'failure' && github.event.inputs.force-failure-workflow == 'true'
+      #  run: echo "This workflow failed, but is being forced to run."
