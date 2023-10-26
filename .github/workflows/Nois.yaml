@@ -32,7 +32,7 @@ jobs:
         if: ${{ failure() && steps.scan.conclusion == 'failure' }}
         uses: rtCamp/action-slack-notify@master
         env:
-          SLACK_CHANNEL: ${{ secret.MY_SECRET_CHANNEL }}
+          SLACK_CHANNEL: ${{ secrets.MY_SECRET_CHANNEL }}
           SLACK_COLOR: ${{ job.status }} 
           SLACK_MESSAGE: 'Failed trivy scan,see uploaded report'
           SLACK_TITLE: Scan failed - Guo Chenming
