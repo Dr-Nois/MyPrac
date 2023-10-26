@@ -6,8 +6,10 @@ on:
     
 
     # this is my own practice to force to operate the fail flow
-    #workflow_dispatch: # add the workflow_dispatch
-    #inputs:
+    # in fact by this way i can also achieve the fail flow but it is more complex
+
+    # workflow_dispatch: # add the workflow_dispatch
+    # inputs:
     #  force-failure-workflow:
     #    # to use the failure workflow
     #    required: true
@@ -33,7 +35,7 @@ jobs:
           format: 'table'
           output: 'trivy-report.txt'
           exit-code: "1"
-          severity: HIGH # need to change from critical to HIGH to test fail flow
+          severity: HIGH # need to be changed from critical to HIGH to test fail flow
 
 
       - name: Scan failed send notification to slack
@@ -94,7 +96,7 @@ jobs:
         uses: sigstore/cosign-installer@v3.1.1
         with:
           cosign-release: 'v2.2.0'
-          # when i use the version 2.2.1 like the example, there is an error
+          # when i use the version 2.2.1 like the example, there is an error here
 
       - name: Sign image with a private key
         run: |
