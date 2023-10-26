@@ -33,7 +33,7 @@ jobs:
           format: 'table'
           output: 'trivy-report.txt'
           exit-code: "1"
-          severity: HIGH # need to change from HIGH to critical
+          severity: HIGH # need to change from critical to HIGH to test fail flow
 
 
       - name: Scan failed send notification to slack
