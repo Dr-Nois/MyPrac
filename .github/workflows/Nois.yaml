@@ -43,7 +43,7 @@ jobs:
           SLACK_MESSAGE: 'Failed trivy scan,see uploaded report'
           SLACK_TITLE: Scan failed - Guo Chenming
           SLACK_USERNAME: DipSA_CICD
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK: ${{ secrets.MY_SLACK_WEBHOOK_URL }}
 
 
       - name: slack send trivy scan reports
