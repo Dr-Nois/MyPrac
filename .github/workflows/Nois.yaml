@@ -12,7 +12,7 @@ jobs:
     if: ${{ !startsWith(github.event.head_commit.message, '#NORUN') }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@master
 
         # One of my friends sugested me to use the txt instead of table to show the output.
       - name: Run Trivy vulnerability scanner in repo mode
@@ -30,7 +30,7 @@ jobs:
 
       - name: Scan failed send notification to slack
         if: ${{ failure() && steps.scan.conclusion == 'failure' }}
-        uses: rtCamp/action-slack-notify@v2
+        uses: rtCamp/action-slack-notify@master
         env:
           SLACK_CHANNEL: ${{ secret.MY_SECRET_CHANNEL }}
           SLACK_COLOR: ${{ job.status }} 
@@ -42,7 +42,7 @@ jobs:
 
       - name: slack send trivy scan reports
         if: ${{ failure() && steps.scan.conclusion == 'failure' }}
-        uses: MeilCli/slack-upload-file@v3
+        uses: MeilCli/slack-upload-file@master
         with:
           slack_token: ${{ secrets.MY_SECRET_BT }}
           channel_id: ${{ secrets.MY_SECRET_CHANNEL }}
