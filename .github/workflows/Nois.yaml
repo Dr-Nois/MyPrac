@@ -82,10 +82,10 @@ jobs:
           tags: 'nois0/go-fortune:${{ github.sha }}'
           
 
-      - name: Install Cosign
+      - - name: Install Cosign
         uses: sigstore/cosign-installer@v3.1.1
         with:
-          cosign-release: 'v2.2.1'
+          cosign-release: 'v2.2.0' #v2.1.1
           # From web page https://github.com/marketplace/actions/cosign-installer
 
 
