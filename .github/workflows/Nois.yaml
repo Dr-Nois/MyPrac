@@ -21,8 +21,7 @@ jobs:
 
 - name: Notify Slack
   uses: rtCamp/action-slack-notify@v2
-  env:
-    SLACK_WEBHOOK: ${{ secrets.MySecret }}
+  
   with:
     status: ${{ job.status }}
     text: 'Vulnerabilities found in the code base. Please check the attached report.'
@@ -33,7 +32,8 @@ jobs:
     fields: 'Attachment'
     color: 'danger'
     actions: 'attachment'
-
+    env:
+      SLACK_WEBHOOK: ${{ secrets.MySecret }}
 
 - name: Run Trivy vulnerability scanner in fs mode
   uses: aquasecurity/trivy-action@master
