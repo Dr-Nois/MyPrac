@@ -79,7 +79,7 @@ jobs:
         id: build-and-push
         with:
           push: true
-          tags: ['nois0/go-fortune:${{ github.sha }}']
+          tags: 'nois0/go-fortune:${{ github.sha }}'
           
 
       - name: Install Cosign
