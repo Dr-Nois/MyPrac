@@ -71,7 +71,7 @@ jobs:
         uses: docker/login-action@master
         with:
           username: ${{ secrets.MY_SECRET_DU }} # This is my docker username.
-          password: ${{ secrets.MY_SECRET_DT }} # This is my docker token.
+          password: ${{ secrets.MY_SECRET_DOCKERTOKEN }} # This is my docker token.
 
 
       - name: Build and push
