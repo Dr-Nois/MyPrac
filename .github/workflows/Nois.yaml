@@ -19,21 +19,22 @@ jobs:
           submodules: 'recursive' # This can be 'true', 'false' or 'recursive'
 
 
-- name: Notify Slack
+- name: Notify about vulnerabilities
   uses: rtCamp/action-slack-notify@v2
-  
+  if: ${{ always() }}
   with:
-    status: ${{ job.status }}
-    text: 'Vulnerabilities found in the code base. Please check the attached report.'
-    author_name: 'GitHub Actions'
-    author_link: 'https://github.com/features/actions'
-    author_icon: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
-    title: 'Vulnerability Report'
-    fields: 'Attachment'
-    color: 'danger'
-    actions: 'attachment'
+    status: 'Vulnerabilities Found'
+    message: 'Vulnerabilities were found in the code base. Please review the attached report.'
+    fields: |
+      [
+        {"title": "Report", "value": "attachment://trivy-report.json", "short": false}
+      ]
+    channel: 'your_slack_channel_name'
+    attachment: 'trivy-report.json'
     env:
       SLACK_WEBHOOK: ${{ secrets.MySecret }}
+
+
 
 - name: Run Trivy vulnerability scanner in fs mode
   uses: aquasecurity/trivy-action@master
