@@ -121,5 +121,5 @@ jobs:
 
 
       - name: Force run failed workflow
-        if: failure() && && steps.scan.conclusion == 'failure'&& github.event.inputs.force-failure-workflow == 'true'
+        if: failure() && steps.scan.conclusion == 'failure' && github.event.inputs.force-failure-workflow == 'true'
         run: echo "This workflow failed, but is being forced to run."
