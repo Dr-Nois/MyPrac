@@ -85,15 +85,16 @@ jobs:
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.1.1
         with:
-          cosign-release: 'v2.2.0' #v2.1.1
+          cosign-release: 'v2.2.1'
+          # From web page https://github.com/marketplace/actions/cosign-installer
 
 
       - name: Sign image with a private key
         run: |
-          echo "${{ secrets.MY_SECRET_NEWPRIK }}" | base64 --decode > cosign_key
+          echo "${{ secrets.MY_SECRET_PRIK }}" | base64 --decode > cosign_key
           cosign sign --yes --key cosign_key nois0/go-fortune:${{ github.sha }}
         env:
-          COSIGN_PRIVATE_KEY: ${{ secrets.MY_SECRET_NEWPRIK }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.MY_SECRET_PRIK }}
           COSIGN_PASSWORD: ${{ secrets.MY_SECRET_CP }}
 
 
