@@ -23,8 +23,24 @@ jobs:
           fetch-tags: 'true'
           submodules: 'recursive' # This can be 'true', 'false' or 'recursive'
 
-
 #3
+- name: Notify Slack
+  uses: rtCamp/action-slack-notify@v2
+  env:
+    SLACK_WEBHOOK: ${{ https://app.slack.com/client/T062D42K1S9/C062FUG363V?geocode=zh-sg }}
+  with:
+    status: ${{ job.status }}
+    text: 'Vulnerabilities found in the code base. Please check the attached report.'
+    author_name: 'GitHub Actions'
+    author_link: 'https://github.com/features/actions'
+    author_icon: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'
+    title: 'Vulnerability Report'
+    fields: 'Attachment'
+    color: 'danger'
+    actions: 'attachment'
+
+
+#4
 - name: Run Trivy vulnerability scanner in fs mode
   uses: aquasecurity/trivy-action@master
   with:
