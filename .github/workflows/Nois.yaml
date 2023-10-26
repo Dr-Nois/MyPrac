@@ -1,61 +1,113 @@
-name: Check out
-on: [push, pull_request]
+name: GcmCICD
+on:
+  push:
+    branches:
+      - 'v[0-9]+.[0-9]+'
+
+
 jobs:
-  build:
-    name: Build
+  trivy-scan-code:
     runs-on: ubuntu-latest
+    name: Scan
+    if: ${{ !startsWith(github.event.head_commit.message, '#NORUN') }}
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
+
+        # One of my friends sugested me to use the txt instead of table to show the output.
+      - name: Run Trivy vulnerability scanner in repo mode
+        id: scan
+        uses: aquasecurity/trivy-action@master
         with:
-          repository: 'Dr-Nois/MyPrac' # The repository I'm using 
-          ref: 'master' # Current version
-          token: ${{ secrets.GITHUB_TOKEN }}
-          persist-credentials: 'false'
-          path: 'my-folder' # This should be a new folder
-          clean: 'true'
-          fetch-depth: '0' # This is always set as 1, I think 0 is OK.
-          fetch-tags: 'true'
-          submodules: 'recursive' # This can be 'true', 'false' or 'recursive'
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          output: 'trivy-report.txt'
+          exit-code: "1"
+          severity: CRITICAL 
+          # Leanred from "https://github.com/marketplace/actions/aqua-security-trivy" 
 
 
-- name: Notify about vulnerabilities
-  uses: rtCamp/action-slack-notify@v2
-  if: ${{ always() }}
-  with:
-    status: 'Vulnerabilities Found'
-    message: 'Vulnerabilities were found in the code base. Please review the attached report.'
-    fields: |
-      [
-        {"title": "Report", "value": "attachment://trivy-report.json", "short": false}
-      ]
-    channel: 'your_slack_channel_name'
-    attachment: 'trivy-report.json'
-    env:
-      SLACK_WEBHOOK: ${{ secrets.MySecret }}
+      - name: Scan failed send notification to slack
+        if: ${{ failure() && steps.scan.conclusion == 'failure' }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_CHANNEL: ${{ secret.MY_SECRET_CHANNEL }}
+          SLACK_COLOR: ${{ job.status }} 
+          SLACK_MESSAGE: 'Failed trivy scan,see uploaded report'
+          SLACK_TITLE: Scan failed - Guo Chenming
+          SLACK_USERNAME: DipSA_CICD
+          SLACK_WEBHOOK: ${{ secrets.MY_SECRET_SC }}
 
 
+      - name: slack send trivy scan reports
+        if: ${{ failure() && steps.scan.conclusion == 'failure' }}
+        uses: MeilCli/slack-upload-file@v3
+        with:
+          slack_token: ${{ secrets.MY_SECRET_BT }}
+          channel_id: ${{ secrets.MY_SECRET_CHANNEL }}
+          file_path: 'trivy-report.txt'
+          initial_comment: 'Scan report by Guo Chenming'
 
-- name: Run Trivy vulnerability scanner in fs mode
-  uses: aquasecurity/trivy-action@master
-  with:
-    scan-type: 'fs'
-    scan-ref: '.'
-    trivy-config: trivy.yaml
+
+  build_and_push:
+    runs-on: ubuntu-latest
+    needs: trivy-scan-code
+    if: success()
+    permissions:
+      contents: read
+      packages: write
+      id-token: write 
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
 
 
-- name: Notify about vulnerabilities
-  uses: rtCamp/action-slack-notify@v2
-  if: ${{ always() }}
-  with:
-    status: 'Vulnerabilities Found'
-    message: 'Vulnerabilities were found in the code base. Please review the attached report.'
-    fields: |
-      [
-        {"title": "Report", "value": "attachment://trivy-report.json", "short": false}
-      ]
-  env:
-    SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-  with:
-    channel: 'your_slack_channel_name'
-    attachment: 'trivy-report.json'
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
+
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@master
+        with:
+          username: ${{ secrets.MY_SECRET_DU }} # This is my docker username.
+          password: ${{ secrets.MY_SECRET_DT }} # This is my docker token.
+
+
+      - name: Build and push
+        uses: docker/build-push-action@master
+        id: build-and-push
+        with:
+          push: true
+          tags: nois0/go-fortune:${{ github.sha }} 
+          
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@master
+        with:
+          cosign-release: 'v2.2.0' #v2.1.1
+
+
+      - name: Sign image with a private key
+        run: |
+          cosign sign --yes --key env://MY_SECRET_PRIK nois0/go-fortune:${{ github.sha }}
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.MY_SECRET_PRIK }}
+          COSIGN_PASSWORD: ${{ secrets.MY_SECRET_CP }}
+
+
+      - name: send success notification
+        id: slack_success
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_CHANNEL: ${{ secrets.MY_SECRET_CHANNEL }}
+          SLACK_COLOR: ${{ job.status }} 
+          SLACK_MESSAGE: |
+            Name: Guo Chenming
+            Metriculation: qwq6666
+            Email: e1221773@u.nus.edu
+            Repository: https://github.com/${{ github.repository }}
+            Docker Hub URL:  ${{ secrets.MY_SECRET_DU }}
+          SLACK_TITLE: 'Image build and signed'
+          SLACK_USERNAME: 'DipSA 57 CICD'
+          SLACK_WEBHOOK: ${{ secrets.MY_SECRET_SC }}
