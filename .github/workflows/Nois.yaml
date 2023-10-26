@@ -1,3 +1,8 @@
+#1
+# I've set the file as private when building it.
+
+
+#2
 name: Check out
 on: [push, pull_request]
 jobs:
@@ -8,12 +13,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          repository: 'Dr-Nois/MyPrac' # 替换为要检出的存储库的名称和所有者
-          ref: 'master' # 替换为要检出的分支、标签或 SHA
-          token: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 提供的令牌变量
-          persist-credentials: 'false' # 根据需要设置为 'true' 或 'false'
-          path: 'my-folder' # 替换为要将存储库检出到的特定路径
-          clean: 'true' # 根据需要设置为 'true' 或 'false'
-          fetch-depth: '0' # 根据需要设置要获取的提交数，0 表示获取所有历史记录
-          fetch-tags: 'true' # 根据需要设置为 'true' 或 'false'
-          submodules: 'recursive' # 根据需要设置为 'true'、'false' 或 'recursive'
+          repository: 'Dr-Nois/MyPrac' # The repository I'm using 
+          ref: 'master' # Current version
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: 'false'
+          path: 'my-folder' # This should be a new folder
+          clean: 'true'
+          fetch-depth: '0' # This is always set as 1, I think 0 is OK.
+          fetch-tags: 'true'
+          submodules: 'recursive' # This can be 'true', 'false' or 'recursive'
+
+
+#3
+- name: Run Trivy vulnerability scanner in fs mode
+  uses: aquasecurity/trivy-action@master
+  with:
+    scan-type: 'fs'
+    scan-ref: '.'
+    trivy-config: trivy.yaml
+
+
+- name: Notify about vulnerabilities
+  uses: rtCamp/action-slack-notify@v2
+  if: ${{ always() }}
+  with:
+    status: 'Vulnerabilities Found'
+    message: 'Vulnerabilities were found in the code base. Please review the attached report.'
+    fields: |
+      [
+        {"title": "Report", "value": "attachment://trivy-report.json", "short": false}
+      ]
+  env:
+    SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+  with:
+    channel: 'your_slack_channel_name'
+    attachment: 'trivy-report.json'
