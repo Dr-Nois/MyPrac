@@ -91,11 +91,11 @@ jobs:
 
       - name: Sign image with a private key
         run: |
-          echo "${{ secrets.MY_SECRET_NEWPRIK }}" | base64 --decode > cosign_key
-          cosign sign --yes --key cosign_key nois0/go-fortune:${{ github.sha }}
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY duckman35/go-fortune:${{ github.sha }}
         env:
-          COSIGN_PRIVATE_KEY: ${{ secrets.MY_NEWSECRET_PRIK }}
-          COSIGN_PASSWORD: ${{ secrets.MY_NEWSECRET_CP }}
+         
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
 
 
       - name: send success notification
