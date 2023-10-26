@@ -1,20 +1,19 @@
-name: GcmCICD
+name: BESTCICDtask
+# failed test
 on:
   push:
     branches:
-      - 'master'
-
+      - 'v[0-9]+.[0-9]+'
 
 jobs:
   trivy-scan-code:
     runs-on: ubuntu-latest
-    name: Scan
+    name: Scan the code base for vulnerabilities
     if: ${{ !startsWith(github.event.head_commit.message, '#NORUN') }}
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@master
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        # One of my friends suggested me to use the txt instead of table to show the output.
       - name: Run Trivy vulnerability scanner in repo mode
         id: scan
         uses: aquasecurity/trivy-action@master
@@ -25,29 +24,28 @@ jobs:
           output: 'trivy-report.txt'
           exit-code: "1"
           severity: CRITICAL 
-          # Leanred from "https://github.com/marketplace/actions/aqua-security-trivy" 
-
+          # severity: CRITICAL  
 
       - name: Scan failed send notification to slack
         if: ${{ failure() && steps.scan.conclusion == 'failure' }}
-        uses: rtCamp/action-slack-notify@master
+        uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_CHANNEL: ${{ secrets.MY_SECRET_CHANNEL }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL_ID }}
           SLACK_COLOR: ${{ job.status }} 
           SLACK_MESSAGE: 'Failed trivy scan,see uploaded report'
           SLACK_TITLE: Scan failed - Guo Chenming
           SLACK_USERNAME: DipSA_CICD
-          SLACK_WEBHOOK: ${{ secrets.MY_SECRET_SC }}
-
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
       - name: slack send trivy scan reports
         if: ${{ failure() && steps.scan.conclusion == 'failure' }}
-        uses: MeilCli/slack-upload-file@master
+        uses: MeilCli/slack-upload-file@v3
         with:
-          slack_token: ${{ secrets.MY_SECRET_BT }}
-          channel_id: ${{ secrets.MY_SECRET_CHANNEL }}
+          slack_token: ${{ secrets.MY_SLACK_TOKEN }}
+          channel_id: ${{ secrets.MY_SLACK_CHANNEL_ID }}
           file_path: 'trivy-report.txt'
           initial_comment: 'Scan report by Guo Chenming'
+
 
 
   build_and_push:
@@ -58,36 +56,31 @@ jobs:
       contents: read
       packages: write
       id-token: write 
+
     steps:
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@master
-
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@master
-
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        uses: docker/login-action@master
+        uses: docker/login-action@v3
         with:
-          username: ${{ secrets.MY_SECRET_DU }} # This is my docker username.
-          password: ${{ secrets.MY_SECRET_DOCKERTOKEN }} # This is my docker token.
-
+          username: ${{ secrets.MY_DOCKERHUB_USER }}
+          password: ${{ secrets.MY_DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        uses: docker/build-push-action@master
+        uses: docker/build-push-action@v5
         id: build-and-push
         with:
           push: true
-          tags: 'nois0/go-fortune:${{ github.sha }}'
+          tags: nois0/go-fortune:${{ github.sha }} 
           
-
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.1.1
         with:
           cosign-release: 'v2.2.0' #v2.1.1
-          # From web page https://github.com/marketplace/actions/cosign-installer
-
 
       - name: Sign image with a private key
         run: |
@@ -100,16 +93,16 @@ jobs:
 
       - name: send success notification
         id: slack_success
-        uses: rtCamp/action-slack-notify@master
+        uses: rtCamp/action-slack-notify@v2
         env:
-          SLACK_CHANNEL: ${{ secrets.MY_SECRET_CHANNEL }}
+          SLACK_CHANNEL: ${{ secrets.MY_SLACK_CHANNEL_ID }}
           SLACK_COLOR: ${{ job.status }} 
           SLACK_MESSAGE: |
             Name: Guo Chenming
-            Metriculation: qwq6666
+            Metriculation: GGbone
             Email: e1221773@u.nus.edu
             Repository: https://github.com/${{ github.repository }}
-            Docker Hub URL:  ${{ secrets.MY_SECRET_DU }}
+            Docker Hub URL:  ${{ secrets.My_DOCKERHUB_URL }}
           SLACK_TITLE: 'Image build and signed'
           SLACK_USERNAME: 'DipSA 57 CICD'
-          SLACK_WEBHOOK: ${{ secrets.MY_SECRET_SC }}
+          SLACK_WEBHOOK: ${{ secrets.MY_SLACK_WEBHOOK_URL }}
