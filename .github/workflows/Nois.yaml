@@ -49,9 +49,9 @@ jobs:
           SLACK_USERNAME: DipSA_CICD
           SLACK_WEBHOOK: ${{ secrets.MY_SLACK_WEBHOOK_URL }}
 
-      # i failed to get the report here
+      # i failed to get the report here at first
       # i do not know why
-      # my slack token is ok and the channel id is ok too
+      # then i know my slack token is okbut the channel id is wrong
       # crazy
       - name: slack send trivy scan reports
         if:  ${{ failure() && steps.scan.conclusion == 'failure'}}
