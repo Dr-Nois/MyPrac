@@ -37,7 +37,7 @@ jobs:
           format: 'table'
           output: 'trivy-report.txt'
           exit-code: "1"
-          severity: HIGH # need to be changed from critical to HIGH to test fail flow
+          severity: CRITICAL # need to be changed from critical to HIGH to test fail flow
           # now i know to change the severity can derectly use the fail flow
 
 
