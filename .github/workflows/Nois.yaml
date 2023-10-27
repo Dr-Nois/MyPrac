@@ -3,7 +3,12 @@ on:
   push:
     branches:
       - 'master'
-    
+
+
+    # I had a big problem with the way I named my secret files
+    # at first they look like MY_SECRET_DT/MY_SECRET_DU but then i can not distinct them
+    # so I redo the secret and renamed everything again
+
 
     # this is my another practice to force to operate the fail flow at first
     # in fact by this way i can also achieve the fail flow but it is more complex
@@ -25,7 +30,7 @@ jobs:
     if:  ${{ !startsWith(github.event.head_commit.message, '#NORUN') }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@master
 
 
       - name: Run Trivy vulnerability scanner in repo mode
@@ -37,11 +42,11 @@ jobs:
           format: 'table'
           output: 'trivy-report.txt'
           exit-code: "1"
-          severity: CRITICAL # need to be changed from critical to HIGH to test fail flow
+          severity: HIGH # need to be changed from critical to HIGH to test fail flow
           # now i know to change the severity can derectly use the fail flow
 
 
-      - name: Scan failed send notification to slack
+      - name: Send fail notification to slack
         if: ${{ failure() && steps.scan.conclusion == 'failure' }} 
         # my friend told me to add steps.scan.conclusion == 'failure' to make sure the scan is done
         uses: rtCamp/action-slack-notify@master
@@ -58,7 +63,7 @@ jobs:
       # i do not know why
       # then i know my slack token is okbut the channel id is wrong
       # crazy
-      - name: slack send trivy scan reports
+      - name: Send trivy scan reports to slack
         if:  ${{ failure() && steps.scan.conclusion == 'failure'}}
         uses: MeilCli/slack-upload-file@master
         with:
@@ -115,7 +120,7 @@ jobs:
           # This is the most hard part, I didn't get the correct key until seek help from my friends
 
 
-      - name: send success notification
+      - name: Send success notification to slack
         id: send_success_notification
         uses: rtCamp/action-slack-notify@master
         env:
